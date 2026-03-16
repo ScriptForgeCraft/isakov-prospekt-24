@@ -175,7 +175,7 @@ class PDFModal {
       if (this.isOneDriveUrl(filePath)) {
         this.iframe.src = filePath;
         this.downloadLink.href = "./files/investment-calculation.xlsx";
-        this.downloadLink.setAttribute("download", "Ներդրումային Հաշվարկ.xlsx.xlsx");
+        this.downloadLink.setAttribute("download", "Ներդրումային Հաշվարկ.xlsx");
         this.downloadLink.style.display = "inline-flex";
         this.showModal();
         return;
