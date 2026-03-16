@@ -39,7 +39,7 @@ class PDFModal {
     );
   }
 
-  // ─── NEW: Office file helpers (не трогают существующую логику) ───────────────
+  // ─── NEW: Office file helpers ─────────────────────────────────────────────────
 
   getFileType(filePath) {
     const clean = filePath.split("?")[0].split("#")[0];
@@ -56,18 +56,23 @@ class PDFModal {
     return ["excel", "word", "powerpoint"].includes(t);
   }
 
+  isOneDriveUrl(filePath) {
+    return (
+      filePath.includes("1drv.ms") ||
+      filePath.includes("onedrive.live.com")
+    );
+  }
+
   getOfficeViewerUrl(filePath) {
     const isGoogleDrive = filePath.includes("drive.google.com");
 
     if (isGoogleDrive) {
-      // Google Drive — используем /preview (работает для xlsx/docx/pptx)
       const match = filePath.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match) {
         return `https://drive.google.com/file/d/${match[1]}/preview`;
       }
     }
 
-    // Cloudflare (публичный HTTPS) — Office Online
     const fullUrl = this.getFullUrl(filePath);
     return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
   }
@@ -167,7 +172,16 @@ class PDFModal {
       this.titleEl.textContent = title;
       this.showLoading();
 
-      // ─── NEW: если Office файл — своя логика, дальше не идём ────────────────
+      if (this.isOneDriveUrl(filePath)) {
+        this.iframe.src = filePath;
+        this.downloadLink.href = "./files/investment-calculation.xlsx";
+        this.downloadLink.setAttribute("download", "Ներդրումային Հաշվարկ.xlsx.xlsx");
+        this.downloadLink.style.display = "inline-flex";
+        this.showModal();
+        return;
+      }
+      // ────────────────────────────────────────────────────────────────────────
+
       if (this.isOfficeFile(filePath)) {
         this.iframe.src = this.getOfficeViewerUrl(filePath);
         this.downloadLink.href = filePath;
@@ -177,7 +191,6 @@ class PDFModal {
       }
       // ────────────────────────────────────────────────────────────────────────
 
-      // Оригинальная логика для PDF — не тронута
       const isGoogleDrive = filePath.includes("drive.google.com");
       const isMobile = this.isMobileDevice();
       const isTablet = this.isTabletDevice();
@@ -223,7 +236,17 @@ class PDFModal {
     const existingError = this.modalBody.querySelector(".pdf-error-message");
     if (existingError) existingError.remove();
 
-    // ─── NEW: если Office файл — своя логика, дальше не идём ────────────────
+    // ─── NEW: OneDrive embed ─────────────────────────────────────────────────
+    if (this.isOneDriveUrl(filePath)) {
+      this.iframe.src = filePath;
+      this.downloadLink.href = "./files/investment-calculation.xlsx";
+      this.downloadLink.setAttribute("download", "Ներդրումային Հաշվարկ.xlsx");
+      this.downloadLink.style.display = "inline-flex";
+      return;
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ─── NEW: Office файл ────────────────────────────────────────────────────
     if (this.isOfficeFile(filePath)) {
       this.iframe.src = this.getOfficeViewerUrl(filePath);
       this.downloadLink.href = filePath;
@@ -232,7 +255,7 @@ class PDFModal {
     }
     // ────────────────────────────────────────────────────────────────────────
 
-    // Оригинальная логика — не тронута
+ 
     const isGoogleDrive = filePath.includes("drive.google.com");
     const isMobile = this.isMobileDevice();
     const isTablet = this.isTabletDevice();
@@ -340,7 +363,7 @@ class PDFModal {
     p.textContent = "Փաստաթուղթը չհաջողվեց բեռնել։";
     const btn = document.createElement("button");
     btn.className = "retry-btn";
-    btn.textContent = "Խնդրում ենք նորից փորձեք։";
+    btn.textContent = "Խնդրում ենք նորից փորձել։";
     btn.onclick = () => location.reload();
     errorMsg.appendChild(p);
     errorMsg.appendChild(btn);
@@ -413,5 +436,3 @@ function debounce(func, wait) {
     timeout = setTimeout(later, wait);
   };
 }
-
-
