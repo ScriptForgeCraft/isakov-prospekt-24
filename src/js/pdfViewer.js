@@ -39,6 +39,41 @@ class PDFModal {
     );
   }
 
+  // ─── NEW: Office file helpers (не трогают существующую логику) ───────────────
+
+  getFileType(filePath) {
+    const clean = filePath.split("?")[0].split("#")[0];
+    const ext = clean.split(".").pop().toLowerCase();
+    if (ext === "pdf") return "pdf";
+    if (["xlsx", "xls", "xlsm", "xlsb"].includes(ext)) return "excel";
+    if (["docx", "doc"].includes(ext)) return "word";
+    if (["pptx", "ppt"].includes(ext)) return "powerpoint";
+    return "other";
+  }
+
+  isOfficeFile(filePath) {
+    const t = this.getFileType(filePath);
+    return ["excel", "word", "powerpoint"].includes(t);
+  }
+
+  getOfficeViewerUrl(filePath) {
+    const isGoogleDrive = filePath.includes("drive.google.com");
+
+    if (isGoogleDrive) {
+      // Google Drive — используем /preview (работает для xlsx/docx/pptx)
+      const match = filePath.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match) {
+        return `https://drive.google.com/file/d/${match[1]}/preview`;
+      }
+    }
+
+    // Cloudflare (публичный HTTPS) — Office Online
+    const fullUrl = this.getFullUrl(filePath);
+    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+
   attachEventListeners() {
     document.querySelectorAll(".btn-close").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -132,6 +167,17 @@ class PDFModal {
       this.titleEl.textContent = title;
       this.showLoading();
 
+      // ─── NEW: если Office файл — своя логика, дальше не идём ────────────────
+      if (this.isOfficeFile(filePath)) {
+        this.iframe.src = this.getOfficeViewerUrl(filePath);
+        this.downloadLink.href = filePath;
+        this.downloadLink.style.display = "inline-flex";
+        this.showModal();
+        return;
+      }
+      // ────────────────────────────────────────────────────────────────────────
+
+      // Оригинальная логика для PDF — не тронута
       const isGoogleDrive = filePath.includes("drive.google.com");
       const isMobile = this.isMobileDevice();
       const isTablet = this.isTabletDevice();
@@ -150,9 +196,7 @@ class PDFModal {
 
       if (isGoogleDrive) {
         const previewUrl = filePath;
-
         const match = previewUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
-
         if (match) {
           const fileId = match[1];
           const downloadUrl = `https://drive.usercontent.google.com/u/0/uc?id=${fileId}&export=download`;
@@ -179,6 +223,16 @@ class PDFModal {
     const existingError = this.modalBody.querySelector(".pdf-error-message");
     if (existingError) existingError.remove();
 
+    // ─── NEW: если Office файл — своя логика, дальше не идём ────────────────
+    if (this.isOfficeFile(filePath)) {
+      this.iframe.src = this.getOfficeViewerUrl(filePath);
+      this.downloadLink.href = filePath;
+      this.downloadLink.style.display = "inline-flex";
+      return;
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
+    // Оригинальная логика — не тронута
     const isGoogleDrive = filePath.includes("drive.google.com");
     const isMobile = this.isMobileDevice();
     const isTablet = this.isTabletDevice();
