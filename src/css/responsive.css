@@ -175,6 +175,12 @@
   .size-block ul {
     grid-template-columns: 1fr;
   }
+
+  .block{
+     & ul {
+       grid-template-columns: 1fr;
+    }
+  }
 }
 
 /* ============================================
