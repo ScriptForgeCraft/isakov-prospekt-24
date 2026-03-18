@@ -74,7 +74,7 @@ class PDFModal {
     }
 
     const fullUrl = this.getFullUrl(filePath);
-    return `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`;
+    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -255,7 +255,7 @@ class PDFModal {
     }
     // ────────────────────────────────────────────────────────────────────────
 
- 
+
     const isGoogleDrive = filePath.includes("drive.google.com");
     const isMobile = this.isMobileDevice();
     const isTablet = this.isTabletDevice();
