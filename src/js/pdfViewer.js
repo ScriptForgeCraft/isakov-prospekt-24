@@ -74,7 +74,7 @@ class PDFModal {
     }
 
     const fullUrl = this.getFullUrl(filePath);
-    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
+    return `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
