@@ -19,9 +19,18 @@
     display: flex;
   }
 
+  .btn-download-alt {
+    margin-bottom: 20px;
+  }
+
   #documents {
+    scroll-margin-top: 17vh;
+  }
+
+  #valuation {
     scroll-margin-top: 10vh;
   }
+
 }
 
 @media (max-width: 600px) {
@@ -50,6 +59,10 @@
 
   .nav-links {
     display: none;
+  }
+
+  #components {
+    scroll-margin-top: 16vh;
   }
 }
 
@@ -194,11 +207,12 @@
   .size-block ul {
     grid-template-columns: 1fr;
   }
+
   .block {
-        & ul {
-            grid-template-columns: 1fr;
-        }
+    & ul {
+      grid-template-columns: 1fr;
     }
+  }
 }
 
 /* ============================================
